@@ -6,7 +6,7 @@ library(klaR)
 library(writexl)
 library(dplyr)
 library(caret)
-
+library (party)
 
 #Load Data
 DATA_TA <- read.csv("Dataclean.csv")
@@ -210,30 +210,12 @@ CM_kmodes <- confusionMatrix(data = DATA_TA$cluster_kmodes, reference = DATA_TA$
 CM_kmedoids <- confusionMatrix(data = DATA_TA$cluster_kmedoids, reference = DATA_TA$Y)
 # Menampilkan hasil confusion matrix
 
+
 CM_kmodes
 CM_kmedoids
 
-# Memuat paket yang dibutuhkan, misalnya 'party' atau 'rpart'
-library (party)
 
-# Membuat model decision tree dengan fungsi ctree
-# formula adalah rumus yang mendeskripsikan variabel prediktor dan respon
-# data adalah nama kumpulan data yang digunakan
-model_DT_kmodes <- ctree (cluster_kmodes~X1+X15+X10+X13+X4+X14+X19+X11+X16+X5+X26, DATA_TA)
-model_DT_kmedoids <- ctree (cluster_kmedoids~X1+X15+X10+X13+X4+X14+X19+X11+X16+X5+X26, DATA_TA)
+table(DATA_TA$cluster_kmodes,DATA_TA$Y)
 
-
-
-
-# Memuat paket yang dibutuhkan, misalnya 'RWeka' atau 'partykit'
-library (RWeka)
-
-# Membuat model decision tree dengan fungsi J48
-# formula adalah rumus yang mendeskripsikan variabel prediktor dan respon
-# data adalah nama kumpulan data yang digunakan
-# control adalah parameter tambahan untuk mengatur algoritma C4.5
-model <- J48 (cluster_kmedoids~X1+X15+X10+X13+X4+X14+X19+X11+X16+X5+X26, DATA_TA, control = Weka_control ())
-# Melakukan visualisasi decision tree dengan fungsi plot
-model
 
 
