@@ -1,13 +1,14 @@
 #Load library
-library(readxl)
-library(factoextra)
-library(cluster)
-library(klaR)
-library(writexl)
-library(dplyr)
-library(caret)
-library (party)
-
+library(readxl) # membaca data excel
+library(factoextra) # untuk kmedoids
+library(cluster) # untuk kmedoids
+library(klaR) # untuk kmodes
+library(writexl) # untuk mengunduh data ke local
+library(dplyr) # memudahkan function
+library(caret) # # untuk confusion matrix
+library(rpart) #untuk desicion tree
+library(caTools) # untuk membagi data train dan test
+library(rpart.plot) #visualisai
 #Load Data
 DATA_TA <- read.csv("Dataclean.csv")
 DATA_TA
@@ -51,7 +52,7 @@ DATA_TA
 
 
 #eksplor ke excel
-write_xlsx(DATA_TA, path="MYDATA.xlsx")
+write_xlsx(DATA_TA, path="DATA_label.xlsx")
 
 
 #Menentukan Pusat Klaster Awal dengan Modus
@@ -175,11 +176,14 @@ DATA_TA$cluster_kmedoids <- as.factor(DATA_TA$cluster_kmedoids)
 DATA_TA_KMODES=DATA_TA[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26","Y","cluster_kmodes")]
 OUTLIER_KMODES=DATA_TA_KMODES[DATA_TA_KMODES$Y != DATA_TA_KMODES$cluster_kmodes,]
 OUTLIER_KMODES
-
+write.csv(OUTLIER_KMODES,"DATA_labelbeda_kmodes.csv", row.names = TRUE)
+ 
 #Data Kmedoids yang klasternya berbeda
 DATA_TA_KMEDOIDS=DATA_TA[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26","Y","cluster_kmedoids")]
 OUTLIER_KMEDOIDS=DATA_TA_KMEDOIDS[DATA_TA_KMEDOIDS$Y != DATA_TA_KMEDOIDS$cluster_kmedoids,]
 OUTLIER_KMEDOIDS
+write.csv(OUTLIER_KMEDOIDS,"DATA_labelbeda_kmedoids.csv", row.names = TRUE)
+
 
 #jarak Hamming
 hamming_dist <- function(a, b) {sum(a != b)}
@@ -209,13 +213,109 @@ DATA_TA_TM=filter(DATA_TA, Y=="Tidak Miskin")
 CM_kmodes <- confusionMatrix(data = DATA_TA$cluster_kmodes, reference = DATA_TA$Y)
 CM_kmedoids <- confusionMatrix(data = DATA_TA$cluster_kmedoids, reference = DATA_TA$Y)
 # Menampilkan hasil confusion matrix
-
-
 CM_kmodes
 CM_kmedoids
 
-
 table(DATA_TA$cluster_kmodes,DATA_TA$Y)
+table(DATA_TA$cluster_kmedoids, DATA_TA$Y)
+
+#Evaluasi perbedaan kelas Y dan hasil klaster
+#Melakukan evaluasi
+#Y dan kmodes
+akurasi_bedakmodes=confusionMatrix(data=DATA_TA$cluster_kmodes, reference = DATA_TA$Y)$overall[1]#akurasi
+presisi_bedakmodes=confusionMatrix(data=DATA_TA$cluster_kmodes, reference = DATA_TA$Y)$byClass[1]#presisi
+recal_bedakmodes=confusionMatrix(data=DATA_TA$cluster_kmodes, reference = DATA_TA$Y)$byClass[2]#recal
+F1_bedakmodes = 2 * (presisi_bedakmodes * recal_bedakmodes) / (presisi_bedakmodes+ recal_bedakmodes) #F1
+akurasi_bedakmodes
+presisi_bedakmodes
+recal_bedakmodes
+F1_bedakmodes
 
 
+#Y dan kmedoids
+akurasi_bedakmedoids=confusionMatrix(data=DATA_TA$cluster_kmedoids, reference = DATA_TA$Y)$overall[1]#akurasi
+presisi_bedakmedoids=confusionMatrix(data=DATA_TA$cluster_kmedoids, reference = DATA_TA$Y)$byClass[1]#presisi
+recal_bedakmedoids=confusionMatrix(data=DATA_TA$cluster_kmedoids, reference = DATA_TA$Y)$byClass[2]#recal
+F1_bedakmedoids = 2 * (presisi_bedakmedoids * recal_bedakmedoids) / (presisi_bedakmedoids+ recal_bedakmedoids) #F1
+akurasi_bedakmedoids
+presisi_bedakmedoids
+recal_bedakmedoids
+F1_bedakmedoids
+
+
+# DESICION TREE
+#membagi data training dan testing
+set.seed(101)
+splitdata <- sample.split(DATA_TA$Y, SplitRatio = 0.7) # training 70%
+data.training <- subset(DATA_TA, splitdata==T)
+data.testing <- subset(DATA_TA, splitdata==F)
+
+#melihat dimensi data
+dim(data.training)
+dim(data.testing)
+
+
+#membuat model desicion tree
+#variabel Y
+DT_Y=rpart(Y~X1+X15+X10+X13+X4+X14+X19+X11+X16+X5+X26, method = "class", data = data.training)
+printcp(DT_Y)
+#variabel kmodes
+DT_kmodes=rpart(cluster_kmodes~X1+X15+X10+X13+X4+X14+X19+X11+X16+X5+X26, method = "class", data = data.training)
+printcp(DT_kmodes)
+#variabel kmedoids
+DT_kmedoids=rpart(cluster_kmedoids~X1+X15+X10+X13+X4+X14+X19+X11+X16+X5+X26, method = "class", data = data.training)
+printcp(DT_kmedoids)
+
+#visualisasi
+prp(DT_Y)
+prp(DT_kmodes)
+prp(DT_kmedoids)
+
+#Prdiksi
+prediksi_Y <- predict(DT_Y, newdata = data.testing, type = "class")
+prediksi_kmodes <- predict(DT_kmodes, newdata = data.testing, type = "class")
+prediksi_kmedoids <- predict(DT_kmedoids, newdata = data.testing, type = "class")
+
+#confusion matrix
+table(prediksi_Y,data.testing$Y)
+table(prediksi_kmodes,data.testing$cluster_kmodes)
+table(prediksi_kmedoids,data.testing$cluster_kmedoids)
+
+
+#Melakukan evaluasi
+#Y
+akurasi_Y=confusionMatrix(data=prediksi_Y, reference = data.testing$Y)$overall[1]#akurasi
+presisi_Y=confusionMatrix(data=prediksi_Y, reference = data.testing$Y)$byClass[1]#presisi
+recal_Y=confusionMatrix(data=prediksi_Y, reference = data.testing$Y)$byClass[2]#recal
+F1_Y = 2 * (presisi_Y * recal_Y) / (presisi_Y+ recal_Y) #F1
+akurasi_Y
+presisi_Y
+recal_Y
+F1_Y
+
+#Kmodes
+akurasi_kmodes=confusionMatrix(data=prediksi_kmodes, reference = data.testing$cluster_kmodes)$overall[1]#akurasi
+presisi_kmodes=confusionMatrix(data=prediksi_kmodes, reference = data.testing$cluster_kmodes)$byClass[1]#presisi
+recal_kmodes=confusionMatrix(data=prediksi_kmodes, reference = data.testing$cluster_kmodes)$byClass[2]#recal
+F1_kmodes = 2 * (presisi_kmodes * recal_kmodes) / (presisi_kmodes+ recal_kmodes) #F1
+akurasi_kmodes
+presisi_kmodes
+recal_kmodes
+F1_kmodes
+
+
+#Kmedoids
+akurasi_kmedoids=confusionMatrix(data=prediksi_kmedoids, reference = data.testing$cluster_kmedoids)$overall[1]#akurasi
+presisi_kmedoids=confusionMatrix(data=prediksi_kmedoids, reference = data.testing$cluster_kmedoids)$byClass[1]#presisi
+recal_kmedoids=confusionMatrix(data=prediksi_kmedoids, reference = data.testing$cluster_kmedoids)$byClass[2]#recal
+F1_kmedoids = 2 * (presisi_kmedoids * recal_kmedoids) / (presisi_kmedoids+ recal_kmedoids) #F1
+akurasi_kmedoids
+presisi_kmedoids
+recal_kmedoids
+F1_kmedoids
+
+
+DT_Y$variable.importance
+DT_kmodes$variable.importance
+DT_kmedoids$variable.importance
 
