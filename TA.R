@@ -175,13 +175,13 @@ DATA_TA$cluster_kmedoids <- as.factor(DATA_TA$cluster_kmedoids)
 #Data Kmodes yang klasternya berbeda
 DATA_TA_KMODES=DATA_TA[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26","Y","cluster_kmodes")]
 OUTLIER_KMODES=DATA_TA_KMODES[DATA_TA_KMODES$Y != DATA_TA_KMODES$cluster_kmodes,]
-OUTLIER_KMODES
+str(OUTLIER_KMODES)
 write.csv(OUTLIER_KMODES,"DATA_labelbeda_kmodes.csv", row.names = TRUE)
  
 #Data Kmedoids yang klasternya berbeda
 DATA_TA_KMEDOIDS=DATA_TA[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26","Y","cluster_kmedoids")]
 OUTLIER_KMEDOIDS=DATA_TA_KMEDOIDS[DATA_TA_KMEDOIDS$Y != DATA_TA_KMEDOIDS$cluster_kmedoids,]
-OUTLIER_KMEDOIDS
+str(OUTLIER_KMEDOIDS)
 write.csv(OUTLIER_KMEDOIDS,"DATA_labelbeda_kmedoids.csv", row.names = TRUE)
 
 
@@ -212,12 +212,15 @@ DATA_TA_TM=filter(DATA_TA, Y=="Tidak Miskin")
 # Membuat confusion matrix dengan fungsi confusionMatrix
 CM_kmodes <- confusionMatrix(data = DATA_TA$cluster_kmodes, reference = DATA_TA$Y)
 CM_kmedoids <- confusionMatrix(data = DATA_TA$cluster_kmedoids, reference = DATA_TA$Y)
+CM_3 <- confusionMatrix(data = DATA_TA$cluster_kmedoids, reference = DATA_TA$cluster_kmodes)
 # Menampilkan hasil confusion matrix
 CM_kmodes
 CM_kmedoids
+CM_3
 
 table(DATA_TA$cluster_kmodes,DATA_TA$Y)
 table(DATA_TA$cluster_kmedoids, DATA_TA$Y)
+table(DATA_TA$cluster_kmedoids, DATA_TA$cluster_kmodes)
 
 #Evaluasi perbedaan kelas Y dan hasil klaster
 #Melakukan evaluasi
@@ -241,6 +244,16 @@ akurasi_bedakmedoids
 presisi_bedakmedoids
 recal_bedakmedoids
 F1_bedakmedoids
+
+#kmodes dan kmedoids
+akurasi_beda3=confusionMatrix(data=DATA_TA$cluster_kmedoids, reference = DATA_TA$cluster_kmodes)$overall[1]#akurasi
+presisi_beda3=confusionMatrix(data=DATA_TA$cluster_kmedoids, reference = DATA_TA$cluster_kmodes)$byClass[1]#presisi
+recal_beda3=confusionMatrix(data=DATA_TA$cluster_kmedoids, reference = DATA_TA$cluster_kmodes)$byClass[2]#recal
+F1_beda3 = 2 * (presisi_beda3 * recal_beda3) / (presisi_beda3+ recal_beda3) #F1
+akurasi_beda3
+presisi_beda3
+recal_beda3
+F1_beda3
 
 
 # DESICION TREE
