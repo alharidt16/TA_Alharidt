@@ -12,7 +12,7 @@ library(rpart.plot) #visualisai
 #Load Data
 DATA_TA <- read.csv("Dataclean.csv")
 DATA_TA
-
+str(DATA_TA)
 #Menghilangkan Data duplikat
 DATA_TA<- unique(DATA_TA)
 
@@ -35,7 +35,6 @@ pusat_kmodes=k_modes$modes
 #Menambahkan kolom label hasil kmodes
 DATA_TA$cluster_kmodes<-k_modes$cluster
 View(DATA_TA)
-
 
 #KMEDOIDS
 #Data Tanpa Variabel Y untuk kmedoids
@@ -108,7 +107,7 @@ P_K5_M1=pusat_kmodes[3,]
 # pelabelan klaster Kmedoids
 # M=Y, 5=1, 4=2, 3=3, 2=4, 1=5
 
-#pusat klaster kmodes
+#pusat klaster kmedoids
 P_K1_M2=pusat_kmedoids[5,]
 P_K2_M2=pusat_kmedoids[4,]
 P_K3_M2=pusat_kmedoids[3,]
@@ -196,10 +195,11 @@ manhattan_dist <- function(a, b){
   dist <- sum(dist)
   return(dist)
 }
-#contoh
-manhattan_dist(P_K2_M1,OUTLIER_KMODES[1,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")] )
-DATA_TA
 
+#contoh
+manhattan_dist(P_K2_M1,OUTLIER_KMEDOIDS[10,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")] )
+DATA_TA
+OUTLIER_KMEDOIDS#[2,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
 
 #DATA SRT Sangat Miskin
 DATA_TA_SM=filter(DATA_TA, Y=="Sangat Miskin")
@@ -207,6 +207,8 @@ DATA_TA_M=filter(DATA_TA, Y=="Miskin")
 DATA_TA_HM=filter(DATA_TA, Y=="Hampir Miskin")
 DATA_TA_CM=filter(DATA_TA, Y=="Cukup Miskin")
 DATA_TA_TM=filter(DATA_TA, Y=="Tidak Miskin")
+
+
 
 #CONFUSION MATRIX
 # Membuat confusion matrix dengan fungsi confusionMatrix
@@ -332,3 +334,240 @@ DT_Y$variable.importance
 DT_kmodes$variable.importance
 DT_kmedoids$variable.importance
 
+
+#Membagi data yang beda
+#Kmodes
+OUTLIER_KMODES
+# Y = 1
+DATA_beda_MODES_Y1=filter(OUTLIER_KMODES, Y==1)
+# Y=1 dan K1=2
+DATA_beda_MODES_Y1_M2=filter(DATA_beda_MODES_Y1,cluster_kmodes==2)
+# Y=1 dan K1=3
+DATA_beda_MODES_Y1_M3=filter(DATA_beda_MODES_Y1,cluster_kmodes==3)
+# Y=1 dan K1=4
+DATA_beda_MODES_Y1_M4=filter(DATA_beda_MODES_Y1,cluster_kmodes==4)
+# Y=1 dan K1=5
+DATA_beda_MODES_Y1_M5=filter(DATA_beda_MODES_Y1,cluster_kmodes==5)
+
+# Y = 2
+DATA_beda_MODES_Y2=filter(OUTLIER_KMODES, Y==2)
+# Y=2 dan K1=1
+DATA_beda_MODES_Y2_M1=filter(DATA_beda_MODES_Y2,cluster_kmodes==1)
+# Y=2 dan K1=3
+DATA_beda_MODES_Y2_M3=filter(DATA_beda_MODES_Y2,cluster_kmodes==3)
+# Y=2 dan K1=4
+DATA_beda_MODES_Y2_M4=filter(DATA_beda_MODES_Y2,cluster_kmodes==4)
+# Y=2 dan K1=5
+DATA_beda_MODES_Y2_M5=filter(DATA_beda_MODES_Y2,cluster_kmodes==5)
+
+# Y = 3
+DATA_beda_MODES_Y3=filter(OUTLIER_KMODES, Y==3)
+# Y=3 dan K1=1
+DATA_beda_MODES_Y3_M1=filter(DATA_beda_MODES_Y3,cluster_kmodes==1)
+# Y=3 dan K1=2
+DATA_beda_MODES_Y3_M2=filter(DATA_beda_MODES_Y3,cluster_kmodes==2)
+# Y=3 dan K1=4
+DATA_beda_MODES_Y3_M4=filter(DATA_beda_MODES_Y3,cluster_kmodes==4)
+# Y=3 dan K1=5
+DATA_beda_MODES_Y3_M5=filter(DATA_beda_MODES_Y3,cluster_kmodes==5)
+
+# Y = 4
+DATA_beda_MODES_Y4=filter(OUTLIER_KMODES, Y==4)
+# Y=4 dan K1=1
+DATA_beda_MODES_Y4_M1=filter(DATA_beda_MODES_Y4,cluster_kmodes==1)
+# Y=4 dan K1=2
+DATA_beda_MODES_Y4_M2=filter(DATA_beda_MODES_Y4,cluster_kmodes==2)
+# Y=4 dan K1=3
+DATA_beda_MODES_Y4_M3=filter(DATA_beda_MODES_Y4,cluster_kmodes==3)
+# Y=4 dan K1=5
+DATA_beda_MODES_Y4_M5=filter(DATA_beda_MODES_Y4,cluster_kmodes==5)
+
+# Y = 5
+DATA_beda_MODES_Y5=filter(OUTLIER_KMODES, Y==5)
+# Y=5 dan K1=1
+DATA_beda_MODES_Y5_M1=filter(DATA_beda_MODES_Y5,cluster_kmodes==1)
+# Y=5 dan K1=2
+DATA_beda_MODES_Y5_M2=filter(DATA_beda_MODES_Y5,cluster_kmodes==2)
+# Y=5 dan K1=3
+DATA_beda_MODES_Y5_M3=filter(DATA_beda_MODES_Y5,cluster_kmodes==3)
+# Y=5 dan K1=4
+DATA_beda_MODES_Y5_M4=filter(DATA_beda_MODES_Y5,cluster_kmodes==4)
+
+#Kmedoids
+OUTLIER_KMEDOIDS
+# Y = 1
+DATA_beda_MEDOIDS_Y1=filter(OUTLIER_KMEDOIDS, Y==1)
+# Y=1 dan K2=2
+DATA_beda_MEDOIDS_Y1_M2=filter(DATA_beda_MEDOIDS_Y1,cluster_kmedoids==2)
+# Y=1 dan K2=3
+DATA_beda_MEDOIDS_Y1_M3=filter(DATA_beda_MEDOIDS_Y1,cluster_kmedoids==3)
+# Y=1 dan K2=4
+DATA_beda_MEDOIDS_Y1_M4=filter(DATA_beda_MEDOIDS_Y1,cluster_kmedoids==4)
+# Y=1 dan K2=5
+DATA_beda_MEDOIDS_Y1_M5=filter(DATA_beda_MEDOIDS_Y1,cluster_kmedoids==5)
+
+# Y = 2
+DATA_beda_MEDOIDS_Y2=filter(OUTLIER_KMEDOIDS, Y==2)
+# Y=2 dan K2=1
+DATA_beda_MEDOIDS_Y2_M1=filter(DATA_beda_MEDOIDS_Y2,cluster_kmedoids==1)
+# Y=2 dan K2=3
+DATA_beda_MEDOIDS_Y2_M3=filter(DATA_beda_MEDOIDS_Y2,cluster_kmedoids==3)
+# Y=2 dan K2=4
+DATA_beda_MEDOIDS_Y2_M4=filter(DATA_beda_MEDOIDS_Y2,cluster_kmedoids==4)
+# Y=2 dan K2=5
+DATA_beda_MEDOIDS_Y2_M5=filter(DATA_beda_MEDOIDS_Y2,cluster_kmedoids==5)
+
+# Y = 3
+DATA_beda_MEDOIDS_Y3=filter(OUTLIER_KMEDOIDS, Y==3)
+# Y=3 dan K2=1
+DATA_beda_MEDOIDS_Y3_M1=filter(DATA_beda_MEDOIDS_Y3,cluster_kmedoids==1)
+# Y=3 dan K2=2
+DATA_beda_MEDOIDS_Y3_M2=filter(DATA_beda_MEDOIDS_Y3,cluster_kmedoids==2)
+# Y=3 dan K2=4
+DATA_beda_MEDOIDS_Y3_M4=filter(DATA_beda_MEDOIDS_Y3,cluster_kmedoids==4)
+# Y=3 dan K2=5
+DATA_beda_MEDOIDS_Y3_M5=filter(DATA_beda_MEDOIDS_Y3,cluster_kmedoids==5)
+
+# Y = 4
+DATA_beda_MEDOIDS_Y4=filter(OUTLIER_KMEDOIDS, Y==4)
+# Y=4 dan K2=1
+DATA_beda_MEDOIDS_Y4_M1=filter(DATA_beda_MEDOIDS_Y4,cluster_kmedoids==1)
+# Y=4 dan K2=2
+DATA_beda_MEDOIDS_Y4_M2=filter(DATA_beda_MEDOIDS_Y4,cluster_kmedoids==2)
+# Y=4 dan K2=3
+DATA_beda_MEDOIDS_Y4_M3=filter(DATA_beda_MEDOIDS_Y4,cluster_kmedoids==3)
+# Y=4 dan K2=5
+DATA_beda_MEDOIDS_Y4_M5=filter(DATA_beda_MEDOIDS_Y4,cluster_kmedoids==5)
+
+# Y = 5
+DATA_beda_MEDOIDS_Y5=filter(OUTLIER_KMEDOIDS, Y==5)
+# Y=5 dan K2=1
+DATA_beda_MEDOIDS_Y5_M1=filter(DATA_beda_MEDOIDS_Y5,cluster_kmedoids==1)
+# Y=5 dan K2=2
+DATA_beda_MEDOIDS_Y5_M2=filter(DATA_beda_MEDOIDS_Y5,cluster_kmedoids==2)
+# Y=5 dan K2=3
+DATA_beda_MEDOIDS_Y5_M3=filter(DATA_beda_MEDOIDS_Y5,cluster_kmedoids==3)
+# Y=5 dan K2=4
+DATA_beda_MEDOIDS_Y5_M4=filter(DATA_beda_MEDOIDS_Y5,cluster_kmedoids==4)
+
+
+
+
+# Fungsi untuk menghitung jarak Hamming
+hamming_dist_to_center <- function(observation, center) {
+  dist <- sum(observation != center)
+  return(dist)
+}
+
+# Hitung jarak Hamming dari setiap observasi ke pusat klaster
+jarak_hamming <- function(data,pusat) {
+  distances <- sapply(1:nrow(data), function(i) {
+    obs <- data[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
+    obs <- obs[i, ]
+    hamming_dist_to_center(obs, pusat)
+  })
+  return(distances)
+}
+#contoh A = 1 dan M = 2
+result <- jarak_hamming(DATA_beda_MODES_Y1_M2,P_K2_M1)
+DATA_beda_MODES_Y1_M2$jarak_pusat_modes <- result
+
+result <- jarak_hamming(DATA_beda_MODES_Y1_M2,P_K1_A2)
+DATA_beda_MODES_Y1_M2$jarak_pusat_awal <- result
+
+DATA_beda_MODES_Y1_M2
+
+
+
+# Fungsi untuk menghitung jarak Manhattan
+manhattan_dist_to_center <- function(observation, center) {
+  dist <- abs(observation - center)
+  dist <- sum(dist)
+  return(dist)
+}
+
+# Hitung jarak Manhattan dari setiap observasi ke pusat klaster
+jarak_manhattan <- function(data,pusat) {
+  distances <- sapply(1:nrow(data), function(i) {
+    obs <- data[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
+    obs <- obs[i, ]
+    
+    manhattan_dist_to_center(obs, pusat)
+  })
+  return(distances)
+}
+#contoh A = 1 dan M = 2
+
+result <- jarak_manhattan(DATA_beda_MEDOIDS_Y1_M2,P_K1_A2)
+DATA_beda_MEDOIDS_Y1_M2$jarak_pusat_awal <- result
+
+result <- jarak_manhattan(DATA_beda_MEDOIDS_Y1_M2,P_K2_M2)
+DATA_beda_MEDOIDS_Y1_M2$jarak_pusat_medoids <- result
+
+
+
+DATA_beda_MEDOIDS_Y1_M2
+
+DATA_TA_HASIL_MODES=DATA_TA
+DATA_TA_HASIL_MEDOIDS=DATA_TA
+
+##
+# Hitung jarak Hamming dari setiap observasi ke pusat klaster
+jarak_hamming <- function(data,pusat1,pusat2,pusat3,pusat4,pusat5) {
+  distances <- sapply(1:nrow(data), function(i) {
+    obs <- data[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
+    obs <- obs[i, ]
+    if (data[i, "Y"]==1){pusat=pusat1
+    } else if(data[i, "Y"]==2){pusat=pusat2
+    } else if(data[i, "Y"]==3){pusat=pusat3
+    } else if(data[i, "Y"]==4){pusat=pusat4
+    } else {pusat=pusat5}
+    hamming_dist_to_center(obs, pusat)
+  })
+  return(distances)
+}
+
+result<-jarak_hamming(DATA_TA_HASIL_MODES,P_K1_A1,P_K2_A1,P_K3_A1,P_K4_A1,P_K5_A1)
+DATA_TA_HASIL_MODES$jarak_pusat_awal <- result
+
+result<-jarak_hamming(DATA_TA_HASIL_MODES,P_K1_M1,P_K2_M1,P_K3_M1,P_K4_M1,P_K5_M1)
+DATA_TA_HASIL_MODES$jarak_pusat_modes <- result
+
+
+##
+# Hitung jarak Manhattan dari setiap observasi ke pusat klaster
+jarak_manhattan <- function(data,pusat1,pusat2,pusat3,pusat4,pusat5) {
+  distances <- sapply(1:nrow(data), function(i) {
+    obs <- data[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
+    obs <- obs[i, ]
+    if (data[i, "Y"]==1){pusat=pusat1
+    } else if(data[i, "Y"]==2){pusat=pusat2
+    } else if(data[i, "Y"]==3){pusat=pusat3
+    } else if(data[i, "Y"]==4){pusat=pusat4
+    } else {pusat=pusat5}
+    manhattan_dist_to_center(obs, pusat)
+  })
+  return(distances)
+}
+
+result<-jarak_manhattan(DATA_TA_HASIL_MEDOIDS,P_K1_A2,P_K2_A2,P_K3_A2,P_K4_A2,P_K5_A2)
+DATA_TA_HASIL_MEDOIDS$jarak_pusat_awal <- result
+
+result<-jarak_manhattan(DATA_TA_HASIL_MEDOIDS,P_K1_M2,P_K2_M2,P_K3_M2,P_K4_M2,P_K5_M2)
+DATA_TA_HASIL_MEDOIDS$jarak_pusat_medoids <- result
+
+
+### Mendapatkan klaster akhir dengan jarak terdekat
+MODES_AKHIR <- ifelse(DATA_TA_HASIL_MODES[, "jarak_pusat_modes"] >= DATA_TA_HASIL_MODES[, "jarak_pusat_awal"], DATA_TA_HASIL_MODES[, "Y"], DATA_TA_HASIL_MODES[, "cluster_kmodes"])
+MEDOIDS_AKHIR <-ifelse(DATA_TA_HASIL_MEDOIDS[, "jarak_pusat_medoids"] >= DATA_TA_HASIL_MEDOIDS[, "jarak_pusat_awal"], DATA_TA_HASIL_MEDOIDS[, "Y"], DATA_TA_HASIL_MEDOIDS[, "cluster_kmedoids"])
+DATA_TA_HASIL_MODES$KLASTER_AKHIR <- MODES_AKHIR
+DATA_TA_HASIL_MEDOIDS$KLASTER_AKHIR <- MEDOIDS_AKHIR
+
+DATA_TA_HASIL_MODES
+DATA_TA_HASIL_MEDOIDS
+
+
+
+#eksplor ke excel
+write_xlsx(DATA_TA_HASIL_MODES, path="DATA_TA_HASIL_MODES.xlsx")
+write_xlsx(DATA_TA_HASIL_MEDOIDS, path="DATA_TA_HASIL_MEDOIDS.xlsx")
