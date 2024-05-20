@@ -13,6 +13,7 @@ library(rpart.plot) #visualisai
 DATA_TA <- read.csv("Dataclean.csv")
 DATA_TA
 str(DATA_TA)
+
 #Menghilangkan Data duplikat
 DATA_TA<- unique(DATA_TA)
 
