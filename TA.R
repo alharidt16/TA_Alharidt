@@ -10,15 +10,15 @@ library(rpart) #untuk desicion tree
 library(caTools) # untuk membagi data train dan test
 library(rpart.plot) #visualisai
 #Load Data
-DATA_TA <- read.csv("Dataclean.csv")
-DATA_TA
-str(DATA_TA)
+DATA_TA_ASLI <- read.csv("Dataclean.csv")
+DATA_TA_ASLI
+str(DATA_TA_ASLI)
 
 #Menghilangkan Data duplikat
-DATA_TA<- unique(DATA_TA)
+DATA_TA_ASLI<- unique(DATA_TA_ASLI)
 
 #Memilih Variabel yang akan digunakan
-DATA_TA=DATA_TA[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26","Y")]
+DATA_TA=DATA_TA_ASLI[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26","Y")]
 DATA_TA
 
 
@@ -28,6 +28,7 @@ DATA_TA_1=DATA_TA[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X
 DATA_TA_1
 
 #clustering menggunakan Kmodes
+set.seed(123)
 k_modes=kmodes(DATA_TA_1, 5, iter.max = 100, weighted = FALSE, fast = TRUE)
 k_modes$cluster#Melihat label dari hasil cluster kmodes 
 k_modes$modes #Pusat klaster
@@ -51,26 +52,19 @@ DATA_TA$cluster_kmedoids<-k_medoids$clustering
 DATA_TA
 
 
-#eksplor ke excel
-write_xlsx(DATA_TA, path="DATA_label.xlsx")
 
 
-#Menentukan Pusat Klaster Awal dengan Modus
+
+#Menentukan Pusat Klaster Awal
 DATA_TA_A=DATA_TA[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26","Y")]
-DATA_TA_A
-
 DATA_TA_A_5=filter(DATA_TA_A, Y==5)
 DATA_TA_A_5=DATA_TA_A_5[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
-
 DATA_TA_A_4=filter(DATA_TA_A, Y==4)
 DATA_TA_A_4=DATA_TA_A_4[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
-
 DATA_TA_A_3=filter(DATA_TA_A, Y==3)
 DATA_TA_A_3=DATA_TA_A_3[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
-
 DATA_TA_A_2=filter(DATA_TA_A, Y==2)
 DATA_TA_A_2=DATA_TA_A_2[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
-
 DATA_TA_A_1=filter(DATA_TA_A, Y==1)
 DATA_TA_A_1=DATA_TA_A_1[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
 
@@ -97,13 +91,13 @@ P_K5_A2=apply(DATA_TA_A_5, 2, median)
 
 
 # pelabelan klaster Kmodes
-# M=Y, 1=1, 5=2, 4=3, 2=4, 3=5
+# M=Y, 4=1, 3=2, 5=3, 1=4, 2=5
 #pusat klaster kmodes
-P_K1_M1=pusat_kmodes[1,]
-P_K2_M1=pusat_kmodes[5,]
-P_K3_M1=pusat_kmodes[4,]
-P_K4_M1=pusat_kmodes[2,]
-P_K5_M1=pusat_kmodes[3,]
+P_K1_M1=pusat_kmodes[4,]
+P_K2_M1=pusat_kmodes[3,]
+P_K3_M1=pusat_kmodes[5,]
+P_K4_M1=pusat_kmodes[1,]
+P_K5_M1=pusat_kmodes[2,]
 
 # pelabelan klaster Kmedoids
 # M=Y, 5=1, 4=2, 3=3, 2=4, 1=5
@@ -127,11 +121,11 @@ DATA_TA <- DATA_TA %>%
 # Data Kmodes
 DATA_TA <- DATA_TA %>% 
   mutate(cluster_kmodes = recode(cluster_kmodes,
-                                 "1" = "Sangat Miskin",
-                                 "5" = "Miskin",
-                                 "4" = "Hampir Miskin",
-                                 "2" = "Cukup Miskin",
-                                 "3" = "Tidak Miskin"))
+                                 "4" = "Sangat Miskin",
+                                 "3" = "Miskin",
+                                 "5" = "Hampir Miskin",
+                                 "1" = "Cukup Miskin",
+                                 "2" = "Tidak Miskin"))
 
 # Data Kmedoids
 DATA_TA <- DATA_TA %>% 
@@ -165,13 +159,14 @@ DATA_TA <- DATA_TA %>%
                                    "Hampir Miskin"=3,
                                    "Cukup Miskin"=4,
                                    "Tidak Miskin"=5))
-
+#eksplor ke excel
+write_xlsx(DATA_TA, path="DATA_label.xlsx")
 
 #Menjadikan faktor
 DATA_TA$Y <- as.factor(DATA_TA$Y)
 DATA_TA$cluster_kmodes <- as.factor(DATA_TA$cluster_kmodes)
 DATA_TA$cluster_kmedoids <- as.factor(DATA_TA$cluster_kmedoids)
-
+DATA_TA
 #Data Kmodes yang klasternya berbeda
 DATA_TA_KMODES=DATA_TA[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26","Y","cluster_kmodes")]
 OUTLIER_KMODES=DATA_TA_KMODES[DATA_TA_KMODES$Y != DATA_TA_KMODES$cluster_kmodes,]
@@ -261,7 +256,7 @@ F1_beda3
 
 # DESICION TREE
 #membagi data training dan testing
-set.seed(101)
+set.seed(123)
 splitdata <- sample.split(DATA_TA$Y, SplitRatio = 0.7) # training 70%
 data.training <- subset(DATA_TA, splitdata==T)
 data.testing <- subset(DATA_TA, splitdata==F)
@@ -338,7 +333,7 @@ DT_kmedoids$variable.importance
 
 #Membagi data yang beda
 #Kmodes
-OUTLIER_KMODES
+str(OUTLIER_KMODES)
 # Y = 1
 DATA_beda_MODES_Y1=filter(OUTLIER_KMODES, Y==1)
 # Y=1 dan K1=2
@@ -506,69 +501,98 @@ result <- jarak_manhattan(DATA_beda_MEDOIDS_Y1_M2,P_K2_M2)
 DATA_beda_MEDOIDS_Y1_M2$jarak_pusat_medoids <- result
 
 
-
 DATA_beda_MEDOIDS_Y1_M2
-
+DATA_TA <- read_excel("DATA_label.xlsx")
+str(DATA_TA)
+# Ubah data menjadi dataframe
+DATA_TA <- as.data.frame(DATA_TA)
+#Menjadikan faktor
+DATA_TA$Y <- as.factor(DATA_TA$Y)
+DATA_TA$cluster_kmodes <- as.factor(DATA_TA$cluster_kmodes)
+DATA_TA$cluster_kmedoids <- as.factor(DATA_TA$cluster_kmedoids)
 DATA_TA_HASIL_MODES=DATA_TA
 DATA_TA_HASIL_MEDOIDS=DATA_TA
 
 ##
 # Hitung jarak Hamming dari setiap observasi ke pusat klaster
-jarak_hamming <- function(data,pusat1,pusat2,pusat3,pusat4,pusat5) {
+jarak_hamming <- function(data,klaster,pusat1,pusat2,pusat3,pusat4,pusat5) {
   distances <- sapply(1:nrow(data), function(i) {
     obs <- data[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
     obs <- obs[i, ]
-    if (data[i, "Y"]==1){pusat=pusat1
-    } else if(data[i, "Y"]==2){pusat=pusat2
-    } else if(data[i, "Y"]==3){pusat=pusat3
-    } else if(data[i, "Y"]==4){pusat=pusat4
+    if (data[i, klaster]==1){pusat=pusat1
+    } else if(data[i, klaster]==2){pusat=pusat2
+    } else if(data[i, klaster]==3){pusat=pusat3
+    } else if(data[i, klaster]==4){pusat=pusat4
     } else {pusat=pusat5}
     hamming_dist_to_center(obs, pusat)
   })
   return(distances)
 }
 
-result<-jarak_hamming(DATA_TA_HASIL_MODES,P_K1_A1,P_K2_A1,P_K3_A1,P_K4_A1,P_K5_A1)
-DATA_TA_HASIL_MODES$jarak_pusat_awal <- result
-
-result<-jarak_hamming(DATA_TA_HASIL_MODES,P_K1_M1,P_K2_M1,P_K3_M1,P_K4_M1,P_K5_M1)
-DATA_TA_HASIL_MODES$jarak_pusat_modes <- result
-
+result_jarak_hamming_awal<-jarak_hamming(DATA_TA_HASIL_MODES,"Y",P_K1_A1,P_K2_A1,P_K3_A1,P_K4_A1,P_K5_A1)
+DATA_TA_HASIL_MODES$jarak_pusat_awal <- result_jarak_hamming_awal
+result_jarak_hamming_awal
+result_jarak_hamming_modes<-jarak_hamming(DATA_TA_HASIL_MODES,"cluster_kmodes",P_K1_M1,P_K2_M1,P_K3_M1,P_K4_M1,P_K5_M1)
+DATA_TA_HASIL_MODES$jarak_pusat_modes <- result_jarak_hamming_modes
+result_jarak_hamming_modes
 
 ##
 # Hitung jarak Manhattan dari setiap observasi ke pusat klaster
-jarak_manhattan <- function(data,pusat1,pusat2,pusat3,pusat4,pusat5) {
+jarak_manhattan <- function(data,klaster,pusat1,pusat2,pusat3,pusat4,pusat5) {
   distances <- sapply(1:nrow(data), function(i) {
     obs <- data[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26")]
     obs <- obs[i, ]
-    if (data[i, "Y"]==1){pusat=pusat1
-    } else if(data[i, "Y"]==2){pusat=pusat2
-    } else if(data[i, "Y"]==3){pusat=pusat3
-    } else if(data[i, "Y"]==4){pusat=pusat4
+    if (data[i, klaster]==1){pusat=pusat1
+    } else if(data[i, klaster]==2){pusat=pusat2
+    } else if(data[i, klaster]==3){pusat=pusat3
+    } else if(data[i, klaster]==4){pusat=pusat4
     } else {pusat=pusat5}
     manhattan_dist_to_center(obs, pusat)
   })
   return(distances)
 }
 
-result<-jarak_manhattan(DATA_TA_HASIL_MEDOIDS,P_K1_A2,P_K2_A2,P_K3_A2,P_K4_A2,P_K5_A2)
+result<-jarak_manhattan(DATA_TA_HASIL_MEDOIDS,"Y",P_K1_A2,P_K2_A2,P_K3_A2,P_K4_A2,P_K5_A2)
 DATA_TA_HASIL_MEDOIDS$jarak_pusat_awal <- result
 
-result<-jarak_manhattan(DATA_TA_HASIL_MEDOIDS,P_K1_M2,P_K2_M2,P_K3_M2,P_K4_M2,P_K5_M2)
+result<-jarak_manhattan(DATA_TA_HASIL_MEDOIDS,"cluster_kmedoids",P_K1_M2,P_K2_M2,P_K3_M2,P_K4_M2,P_K5_M2)
 DATA_TA_HASIL_MEDOIDS$jarak_pusat_medoids <- result
 
 
 ### Mendapatkan klaster akhir dengan jarak terdekat
-MODES_AKHIR <- ifelse(DATA_TA_HASIL_MODES[, "jarak_pusat_modes"] >= DATA_TA_HASIL_MODES[, "jarak_pusat_awal"], DATA_TA_HASIL_MODES[, "Y"], DATA_TA_HASIL_MODES[, "cluster_kmodes"])
+MODES_AKHIR <- ifelse(DATA_TA_HASIL_MODES[ ,"jarak_pusat_modes"] >= DATA_TA_HASIL_MODES[ ,"jarak_pusat_awal"], DATA_TA_HASIL_MODES[ ,"Y"], DATA_TA_HASIL_MODES[ ,"cluster_kmodes"])
 MEDOIDS_AKHIR <-ifelse(DATA_TA_HASIL_MEDOIDS[, "jarak_pusat_medoids"] >= DATA_TA_HASIL_MEDOIDS[, "jarak_pusat_awal"], DATA_TA_HASIL_MEDOIDS[, "Y"], DATA_TA_HASIL_MEDOIDS[, "cluster_kmedoids"])
 DATA_TA_HASIL_MODES$KLASTER_AKHIR <- MODES_AKHIR
 DATA_TA_HASIL_MEDOIDS$KLASTER_AKHIR <- MEDOIDS_AKHIR
 
-DATA_TA_HASIL_MODES
+MEDOIDS_AKHIR
+MODES_AKHIR
+
+str(DATA_TA_HASIL_MODES)
 DATA_TA_HASIL_MEDOIDS
-
-
+DATA_TA_HASIL_MODES$KLASTER_AKHIR <- as.factor(DATA_TA_HASIL_MODES$KLASTER_AKHIR)
+DATA_TA_HASIL_MEDOIDS$KLASTER_AKHIR <- as.factor(DATA_TA_HASIL_MEDOIDS$KLASTER_AKHIR)
 
 #eksplor ke excel
 write_xlsx(DATA_TA_HASIL_MODES, path="DATA_TA_HASIL_MODES.xlsx")
 write_xlsx(DATA_TA_HASIL_MEDOIDS, path="DATA_TA_HASIL_MEDOIDS.xlsx")
+
+
+#confusion matrix
+table(DATA_TA_HASIL_MODES$cluster_kmodes,DATA_TA_HASIL_MODES$KLASTER_AKHIR)
+table(DATA_TA_HASIL_MEDOIDS$cluster_kmedoids,DATA_TA_HASIL_MEDOIDS$KLASTER_AKHIR)
+
+evaluasi = function(predik,asli){
+  akurasi=confusionMatrix(data=predik, reference = asli)$overall[1]#akurasi
+  presisi=confusionMatrix(data=predik, reference = asli)$byClass[1]#presisi
+  recal=confusionMatrix(data=predik, reference = asli)$byClass[2]#recal
+  F1_score = 2 * (presisi * recal) / (presisi+ recal) #F1
+  
+  cat("Akurasi :", akurasi,"\n")
+  cat("Presisi :", presisi,"\n")
+  cat("Recal :", recal,"\n")
+  cat("F1 Score :", F1_score,"\n")
+}
+
+evaluasi(DATA_TA_HASIL_MODES$KLASTER_AKHIR,DATA_TA_HASIL_MODES$cluster_kmodes)
+evaluasi(DATA_TA_HASIL_MEDOIDS$KLASTER_AKHIR,DATA_TA_HASIL_MEDOIDS$cluster_kmedoids)
