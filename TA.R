@@ -10,23 +10,16 @@ library(rpart) #untuk desicion tree
 library(caTools) # untuk membagi data train dan test
 library(rpart.plot) #visualisai
 #Load Data
-DATA_TA_ASLI <- read.csv("DATATA.csv")
-DATA_TA_ASLI
+DATA_TA_ASLI <- read_excel("DATA_AL HARIDT MAHMUDI_2008108010004.xlsx")
+str(DATA_TA_ASLI)
+DATA_TA_ASLI <- as.data.frame(DATA_TA_ASLI)
 str(DATA_TA_ASLI)
 
-#Menghilangkan Data duplikat
-DATA_TA_ASLI<- unique(DATA_TA_ASLI)
-
-#Memilih Variabel yang akan digunakan
-DATA_TA=DATA_TA_ASLI[,c("X1","X15","X10","X13","X4","X14","X19","X11","X16","X5","X26","Y")]
-DATA_TA
-# Ubah nama kolom 
-DATA_TA <- setNames(DATA_TA, c("X1", "X2", "X3","X4","X5","X6","X7","X8","X9","X10","X11","Y"))
-str(DATA_TA)
-
+#Data untuk hasil clustering
+DATA_TA <- DATA_TA_ASLI
 #Data Tanpa Variabel Y untuk kmodes
 DATA_TA_1=DATA_TA[,c("X1", "X2", "X3","X4","X5","X6","X7","X8","X9","X10","X11")]
-DATA_TA_1
+str(DATA_TA_1)
 #clustering menggunakan Kmodes
 set.seed(123)
 k_modes=kmodes(DATA_TA_1, 5, iter.max = 100, weighted = FALSE, fast = TRUE)
@@ -41,21 +34,19 @@ DATA_TA
 #KMEDOIDS
 #Data Tanpa Variabel Y untuk kmedoids
 DATA_TA_2=DATA_TA[,c("X1", "X2", "X3","X4","X5","X6","X7","X8","X9","X10","X11")]
-DATA_TA_2
-#KMEDOIDS
+str(DATA_TA_2)
+#CLUSTERING KMEDOIDS
 set.seed(123)
-#k_medoids=pam(DATA_TA_2, 5, metric = "manhattan", stand = FALSE)
+#Running sangat lama
+k_medoids=pam(DATA_TA_2, 5, metric = "manhattan", stand = FALSE) 
 k_medoids$clustering
 k_medoids$medoids
 pusat_kmedoids=k_medoids$medoids
-pusat_kmedoids <- setNames(pusat_kmedoids, c("X1", "X2", "X3","X4","X5","X6","X7","X8","X9","X10","X11","Y"))
-pusat_kmedoids
 DATA_TA$cluster_kmedoids<-k_medoids$clustering
 str(DATA_TA)
 
 #eksplor ke excel
 write_xlsx(DATA_TA, path="DATA_klaster.xlsx")
-
 
 #Menentukan Pusat Klaster Awal
 DATA_TA_A=DATA_TA[,c("X1", "X2", "X3","X4","X5","X6","X7","X8","X9","X10","X11","Y")]
@@ -202,6 +193,7 @@ write.csv(OUTLIER_KMODES,"DATA_labelbeda_kmodes.csv", row.names = TRUE)
 
 #Menentukan jarak amatan ke pusat klaster
 str(DATA_TA)
+# 1 data untuk tiap metode
 DATA_TA_HASIL_MODES=DATA_TA[,c("X1", "X2", "X3","X4","X5","X6","X7","X8","X9","X10","X11","Y","cluster_kmodes")]
 DATA_TA_HASIL_MEDOIDS=DATA_TA[,c("X1", "X2", "X3","X4","X5","X6","X7","X8","X9","X10","X11","Y","cluster_kmedoids")]
 
@@ -317,6 +309,7 @@ prediksi_DETE
 confusion_matrix=table(data.testing$KLASTER_AKHIR,prediksi_DETE)
 confusion_matrix
 # Inisialisasi vektor untuk presisi, recall, dan F1-score
+accuracy <- numeric(nrow(confusion_matrix))
 precision <- numeric(nrow(confusion_matrix))
 recall <- numeric(nrow(confusion_matrix))
 f1_score <- numeric(nrow(confusion_matrix))
@@ -327,20 +320,19 @@ for (i in 1:nrow(confusion_matrix)) {
   FP <- sum(confusion_matrix[, i]) - TP
   FN <- sum(confusion_matrix[i, ]) - TP
   TN <- sum(confusion_matrix) - (TP + FP + FN)
-  
+  accuracy[i] <- (TP+TN)/(TP+TN+FP+FN)
   precision[i] <- TP / (TP + FP)
   recall[i] <- TP / (TP + FN)
   f1_score[i] <- 2 * precision[i] * recall[i] / (precision[i] + recall[i])
 }
-
 # Tampilkan hasil
 results <- data.frame(
   Class = 1:nrow(confusion_matrix),
+  Accuracy = accuracy,
   Precision = precision,
   Recall = recall,
   F1_Score = f1_score
 )
-
 print(results)
 
 
